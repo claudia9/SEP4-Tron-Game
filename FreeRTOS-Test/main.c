@@ -43,14 +43,14 @@ bool correctArrowKey(char data_received[])
 {
 	switch (data_received[0])
 	{
-		case 65  : return true;		//A
-		case 97  : return true;		//a
-		case 87  : return true;		//W
-		case 119 : return true;		//w
-		case 68 : return true;		//D
-		case 100 : return true;		//d
-		case 83 : return true;		//S
-		case 115 : return true;		//s
+		case 0x41 : return true;	//A
+		case 0x61  : return true;	//a
+		case 0x57  : return true;	//W
+		case 0x77: return true;		//w
+		case 0x44 : return true;	//D
+		case 0x64 : return true;	//d
+		case 0x53 : return true;	//S
+		case 0x73 : return true;	//s
 		default  : return false;
 
 	}

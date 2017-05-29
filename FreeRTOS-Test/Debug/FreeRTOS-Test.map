@@ -1038,26 +1038,26 @@ END GROUP
  .debug_frame   0x00000600      0x328 src/FreeRTOS/Source/queue.o
  .debug_frame   0x00000928      0x550 src/FreeRTOS/Source/tasks.o
 
-.debug_str      0x00000000     0x1be0
+.debug_str      0x00000000     0x1c20
  *(.debug_str)
  .debug_str     0x00000000      0x255 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.132/gcc/dev/atmega324pa/avr5/crtatmega324pa.o
- .debug_str     0x00000255      0x3ce main.o
-                                0x41c (size before relaxing)
- .debug_str     0x00000623      0x23a src/board/board.o
+ .debug_str     0x00000255      0x3c9 main.o
+                                0x417 (size before relaxing)
+ .debug_str     0x0000061e      0x27f src/board/board.o
                                 0x415 (size before relaxing)
- .debug_str     0x0000085d       0x67 src/buffer/buffer.o
+ .debug_str     0x0000089d       0x67 src/buffer/buffer.o
                                 0x225 (size before relaxing)
- .debug_str     0x000008c4      0x13b src/FreeRTOS/Source/list.o
+ .debug_str     0x00000904      0x13b src/FreeRTOS/Source/list.o
                                 0x2c6 (size before relaxing)
- .debug_str     0x000009ff      0x133 src/FreeRTOS/Source/portable/GCC/ATMega324/port.o
+ .debug_str     0x00000a3f      0x133 src/FreeRTOS/Source/portable/GCC/ATMega324/port.o
                                 0x2d7 (size before relaxing)
- .debug_str     0x00000b32       0xd2 src/FreeRTOS/Source/portable/MemMang/heap_1.o
+ .debug_str     0x00000b72       0xd2 src/FreeRTOS/Source/portable/MemMang/heap_1.o
                                 0x248 (size before relaxing)
- .debug_str     0x00000c04      0x126 src/serial/serial.o
+ .debug_str     0x00000c44      0x126 src/serial/serial.o
                                 0x418 (size before relaxing)
- .debug_str     0x00000d2a      0x529 src/FreeRTOS/Source/queue.o
+ .debug_str     0x00000d6a      0x529 src/FreeRTOS/Source/queue.o
                                 0x857 (size before relaxing)
- .debug_str     0x00001253      0x98d src/FreeRTOS/Source/tasks.o
+ .debug_str     0x00001293      0x98d src/FreeRTOS/Source/tasks.o
                                 0xed4 (size before relaxing)
 
 .debug_loc      0x00000000     0x5401

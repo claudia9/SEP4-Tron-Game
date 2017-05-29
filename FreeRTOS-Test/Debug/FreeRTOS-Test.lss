@@ -23,11 +23,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   9 .debug_frame  00000e78  00000000  00000000  0000c3e8  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00001be0  00000000  00000000  0000d260  2**0
+ 10 .debug_str    00001c20  00000000  00000000  0000d260  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    00005401  00000000  00000000  0000ee40  2**0
+ 11 .debug_loc    00005401  00000000  00000000  0000ee80  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 000004d0  00000000  00000000  00014241  2**0
+ 12 .debug_ranges 000004d0  00000000  00000000  00014281  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -226,11 +226,11 @@ bool correctArrowKey(char data_received[])
      186:	e2 5c       	subi	r30, 0xC2	; 194
      188:	ff 4f       	sbci	r31, 0xFF	; 255
      18a:	0c 94 0a 0f 	jmp	0x1e14	; 0x1e14 <__tablejump2__>
-		case 119 : return true;		//w
-		case 68 : return true;		//D
-		case 100 : return true;		//d
-		case 83 : return true;		//S
-		case 115 : return true;		//s
+		case 0x77: return true;		//w
+		case 0x44 : return true;	//D
+		case 0x64 : return true;	//d
+		case 0x53 : return true;		//S
+		case 0x73 : return true;		//s
 		default  : return false;
      18e:	80 e0       	ldi	r24, 0x00	; 0
      190:	08 95       	ret
@@ -239,10 +239,10 @@ bool correctArrowKey(char data_received[])
 {
 	switch (data_received[0])
 	{
-		case 65  : return true;		//A
+		case 0x41 : return true;	//A
      192:	81 e0       	ldi	r24, 0x01	; 1
-		case 83 : return true;		//S
-		case 115 : return true;		//s
+		case 0x53 : return true;		//S
+		case 0x73 : return true;		//s
 		default  : return false;
 
 	}
@@ -728,27 +728,17 @@ int main(void)
      400:	ff cf       	rjmp	.-2      	; 0x400 <__LOCK_REGION_LENGTH__>
 
 00000402 <_com_call_back>:
-
-// Pointer to application display handler
-static display_callback_ptr_t cb_ptr = NULL;
-
-// ----------------------------------------------------------------------------------------------------------------------
-static void _com_call_back(serial_p _com_serial_instance, uint8_t serial_last_received_byte) {
      402:	cf 93       	push	r28
      404:	df 93       	push	r29
      406:	00 d0       	rcall	.+0      	; 0x408 <_com_call_back+0x6>
      408:	cd b7       	in	r28, 0x3d	; 61
      40a:	de b7       	in	r29, 0x3e	; 62
      40c:	6a 83       	std	Y+2, r22	; 0x02
-	if (_x_rx_com_queue) {
      40e:	80 91 22 02 	lds	r24, 0x0222	; 0x800222 <_x_rx_com_queue>
      412:	90 91 23 02 	lds	r25, 0x0223	; 0x800223 <_x_rx_com_queue+0x1>
      416:	00 97       	sbiw	r24, 0x00	; 0
      418:	71 f0       	breq	.+28     	; 0x436 <_com_call_back+0x34>
-		signed portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
      41a:	19 82       	std	Y+1, r1	; 0x01
-
-		xQueueSendFromISR( _x_rx_com_queue, &serial_last_received_byte, &xHigherPriorityTaskWoken );
      41c:	20 e0       	ldi	r18, 0x00	; 0
      41e:	ae 01       	movw	r20, r28
      420:	4f 5f       	subi	r20, 0xFF	; 255
@@ -757,16 +747,9 @@ static void _com_call_back(serial_p _com_serial_instance, uint8_t serial_last_re
      426:	6e 5f       	subi	r22, 0xFE	; 254
      428:	7f 4f       	sbci	r23, 0xFF	; 255
      42a:	0e 94 db 08 	call	0x11b6	; 0x11b6 <xQueueGenericSendFromISR>
-
-		if( xHigherPriorityTaskWoken != pdFALSE )
      42e:	89 81       	ldd	r24, Y+1	; 0x01
      430:	81 11       	cpse	r24, r1
-		{
-			taskYIELD();
      432:	0e 94 35 04 	call	0x86a	; 0x86a <vPortYield>
-		}
-	}
-}
      436:	0f 90       	pop	r0
      438:	0f 90       	pop	r0
      43a:	df 91       	pop	r29
@@ -774,51 +757,29 @@ static void _com_call_back(serial_p _com_serial_instance, uint8_t serial_last_re
      43e:	08 95       	ret
 
 00000440 <init_com>:
-
-// ----------------------------------------------------------------------------------------------------------------------
-void init_com(QueueHandle_t x_rx_queue) {
-	_x_rx_com_queue = x_rx_queue;
      440:	90 93 23 02 	sts	0x0223, r25	; 0x800223 <_x_rx_com_queue+0x1>
      444:	80 93 22 02 	sts	0x0222, r24	; 0x800222 <_x_rx_com_queue>
      448:	08 95       	ret
 
 0000044a <init_display_timer>:
-}
-
-// ----------------------------------------------------------------------------------------------------------------------
-void init_display_timer(display_callback_ptr_t cb)
-{
-	cb_ptr = cb;
      44a:	90 93 21 02 	sts	0x0221, r25	; 0x800221 <cb_ptr+0x1>
      44e:	80 93 20 02 	sts	0x0220, r24	; 0x800220 <cb_ptr>
-	
-	// Setup timer T0 to CTC, ~1309 Hz
-	OCR0A = 10;
      452:	8a e0       	ldi	r24, 0x0A	; 10
      454:	87 bd       	out	0x27, r24	; 39
-	TCCR0A |= _BV(WGM01); // Mode 2
      456:	84 b5       	in	r24, 0x24	; 36
      458:	82 60       	ori	r24, 0x02	; 2
      45a:	84 bd       	out	0x24, r24	; 36
-	TIMSK0 |= _BV(OCIE0A); // Enable interrupt
      45c:	ee e6       	ldi	r30, 0x6E	; 110
      45e:	f0 e0       	ldi	r31, 0x00	; 0
      460:	80 81       	ld	r24, Z
      462:	82 60       	ori	r24, 0x02	; 2
      464:	80 83       	st	Z, r24
-	TCCR0B |= _BV(CS00) | _BV(CS02); // Prescaler 1024 - and start timer
      466:	85 b5       	in	r24, 0x25	; 37
      468:	85 60       	ori	r24, 0x05	; 5
      46a:	85 bd       	out	0x25, r24	; 37
      46c:	08 95       	ret
 
 0000046e <__vector_16>:
-}
-
-// ----------------------------------------------------------------------------------------------------------------------
-//ISR for display timer
-ISR(TIMER0_COMPA_vect)
-{
      46e:	1f 92       	push	r1
      470:	0f 92       	push	r0
      472:	0f b6       	in	r0, 0x3f	; 63
@@ -836,16 +797,11 @@ ISR(TIMER0_COMPA_vect)
      48a:	bf 93       	push	r27
      48c:	ef 93       	push	r30
      48e:	ff 93       	push	r31
-	if (cb_ptr)
      490:	e0 91 20 02 	lds	r30, 0x0220	; 0x800220 <cb_ptr>
      494:	f0 91 21 02 	lds	r31, 0x0221	; 0x800221 <cb_ptr+0x1>
      498:	30 97       	sbiw	r30, 0x00	; 0
      49a:	09 f0       	breq	.+2      	; 0x49e <__vector_16+0x30>
-	{
-		cb_ptr();
      49c:	09 95       	icall
-	}
-}
      49e:	ff 91       	pop	r31
      4a0:	ef 91       	pop	r30
      4a2:	bf 91       	pop	r27
@@ -865,11 +821,7 @@ ISR(TIMER0_COMPA_vect)
      4be:	18 95       	reti
 
 000004c0 <com_send_bytes>:
-
-// ----------------------------------------------------------------------------------------------------------------------
-void com_send_bytes(uint8_t *bytes, uint8_t len) {
      4c0:	46 2f       	mov	r20, r22
-	serial_send_bytes(_com_serial_instance, bytes, len);
      4c2:	bc 01       	movw	r22, r24
      4c4:	80 91 24 02 	lds	r24, 0x0224	; 0x800224 <_com_serial_instance>
      4c8:	90 91 25 02 	lds	r25, 0x0225	; 0x800225 <_com_serial_instance+0x1>
@@ -877,10 +829,6 @@ void com_send_bytes(uint8_t *bytes, uint8_t len) {
      4d0:	08 95       	ret
 
 000004d2 <init_board>:
-}
-
-// ----------------------------------------------------------------------------------------------------------------------
-void init_board(void) {
      4d2:	8f 92       	push	r8
      4d4:	9f 92       	push	r9
      4d6:	af 92       	push	r10
@@ -889,17 +837,12 @@ void init_board(void) {
      4dc:	df 92       	push	r13
      4de:	ef 92       	push	r14
      4e0:	0f 93       	push	r16
-	static buffer_struct_t _com_rx_buffer;
-	static buffer_struct_t _com_tx_buffer;
-	buffer_init(&_com_rx_buffer);
      4e2:	8d ef       	ldi	r24, 0xFD	; 253
      4e4:	91 e0       	ldi	r25, 0x01	; 1
      4e6:	0e 94 c2 02 	call	0x584	; 0x584 <buffer_init>
-	buffer_init(&_com_tx_buffer);
      4ea:	8a ed       	ldi	r24, 0xDA	; 218
      4ec:	91 e0       	ldi	r25, 0x01	; 1
      4ee:	0e 94 c2 02 	call	0x584	; 0x584 <buffer_init>
-	_com_serial_instance = serial_new_instance(ser_USART0, 115200UL, ser_BITS_8, ser_STOP_1, ser_NO_PARITY, &_com_rx_buffer, &_com_tx_buffer, _com_call_back);
      4f2:	0f 2e       	mov	r0, r31
      4f4:	f1 e0       	ldi	r31, 0x01	; 1
      4f6:	8f 2e       	mov	r8, r31
@@ -929,41 +872,23 @@ void init_board(void) {
      526:	0e 94 23 05 	call	0xa46	; 0xa46 <serial_new_instance>
      52a:	90 93 25 02 	sts	0x0225, r25	; 0x800225 <_com_serial_instance+0x1>
      52e:	80 93 24 02 	sts	0x0224, r24	; 0x800224 <_com_serial_instance>
-	
-	// Pull up on Joystick inputs
-	PORTC |= _BV(PORTC0) | _BV(PORTC1) | _BV(PORTC6) | _BV(PORTC7);
      532:	88 b1       	in	r24, 0x08	; 8
      534:	83 6c       	ori	r24, 0xC3	; 195
      536:	88 b9       	out	0x08, r24	; 8
-	PORTD |= _BV(PORTD3);
      538:	5b 9a       	sbi	0x0b, 3	; 11
-	
-	// Shift register control pins to output
-	// SER, RCK, SCK, G (enable output)
-	DDRD |= _BV(DDD2) | _BV(DDD4) | _BV(DDD5) | _BV(DDD6);
      53a:	8a b1       	in	r24, 0x0a	; 10
      53c:	84 67       	ori	r24, 0x74	; 116
      53e:	8a b9       	out	0x0a, r24	; 10
-	// G (enable output) high
-	PORTD |= _BV(PORTD6);
      540:	5e 9a       	sbi	0x0b, 6	; 11
-	
-	// Column pins to output
-	DDRA |= 0xFF;
      542:	81 b1       	in	r24, 0x01	; 1
      544:	8f ef       	ldi	r24, 0xFF	; 255
      546:	81 b9       	out	0x01, r24	; 1
-	DDRB |= _BV(DDB0) | _BV(DDB1);
      548:	84 b1       	in	r24, 0x04	; 4
      54a:	83 60       	ori	r24, 0x03	; 3
      54c:	84 b9       	out	0x04, r24	; 4
-	
-	// Trace pins Task Monitor (R2R)
-	DDRB |= _BV(DDB2) | _BV(DDB3) | _BV(DDB4) | _BV(DDB5);
      54e:	84 b1       	in	r24, 0x04	; 4
      550:	8c 63       	ori	r24, 0x3C	; 60
      552:	84 b9       	out	0x04, r24	; 4
-}
      554:	0f 91       	pop	r16
      556:	ef 90       	pop	r14
      558:	df 90       	pop	r13
@@ -975,16 +900,9 @@ void init_board(void) {
      564:	08 95       	ret
 
 00000566 <switch_in>:
-	
-	 Called by the the traceTASK_SWITCHED_IN() macro in FreeRTOS.
-	 Are enabled in FreeRTOSConfig.h
-	 **********************************************************************/
-	void switch_in(uint8_t task_no) {
-		PORTB &= 0b11000011;
      566:	95 b1       	in	r25, 0x05	; 5
      568:	93 7c       	andi	r25, 0xC3	; 195
      56a:	95 b9       	out	0x05, r25	; 5
-		PORTB |= task_no << 2;
      56c:	25 b1       	in	r18, 0x05	; 5
      56e:	34 e0       	ldi	r19, 0x04	; 4
      570:	83 9f       	mul	r24, r19
@@ -995,46 +913,23 @@ void init_board(void) {
      57a:	08 95       	ret
 
 0000057c <switch_out>:
-	
-	 Called by the the traceTASK_SWITCHED_OUT() macro in FreeRTOS.
-	 Are enabled in FreeRTOSConfig.h
-	 **********************************************************************/
-	void switch_out(uint8_t task_no) {
-		PORTB &= 0b11000011;
      57c:	85 b1       	in	r24, 0x05	; 5
      57e:	83 7c       	andi	r24, 0xC3	; 195
      580:	85 b9       	out	0x05, r24	; 5
      582:	08 95       	ret
 
 00000584 <buffer_init>:
-  @endcode
-
- @note The buffer structure must be initialized before any of the buffer functions must be called.
- @param *buffer Pointer to the buffer structure to be used.
- ***********************************************/
-void buffer_init(buffer_struct_t *buffer) {
      584:	fc 01       	movw	r30, r24
-	buffer->in_i = 0;
      586:	10 a2       	std	Z+32, r1	; 0x20
-	buffer->out_i = 0;
      588:	11 a2       	std	Z+33, r1	; 0x21
-	buffer->no_in_buffer = 0;
      58a:	12 a2       	std	Z+34, r1	; 0x22
      58c:	08 95       	ret
 
 0000058e <buffer_get_item>:
- @return BUFFER_OK: item removed from buffer and returned in item.\n
-    BUFFER_EMPTY: The buffer is empty, item is not updated.
- @param *buffer pointer to the buffer structure.
- @param *item pointer to the variable where the value of the item is returned.
- ***********************************************/
-uint8_t buffer_get_item(buffer_struct_t *buffer, uint8_t *item) {
      58e:	fc 01       	movw	r30, r24
-	if (buffer->no_in_buffer > 0) {
      590:	82 a1       	ldd	r24, Z+34	; 0x22
      592:	88 23       	and	r24, r24
      594:	d9 f0       	breq	.+54     	; 0x5cc <buffer_get_item+0x3e>
-		*item = buffer->storage[buffer->out_i];
      596:	81 a1       	ldd	r24, Z+33	; 0x21
      598:	df 01       	movw	r26, r30
      59a:	a8 0f       	add	r26, r24
@@ -1042,7 +937,6 @@ uint8_t buffer_get_item(buffer_struct_t *buffer, uint8_t *item) {
      59e:	8c 91       	ld	r24, X
      5a0:	db 01       	movw	r26, r22
      5a2:	8c 93       	st	X, r24
-		buffer->out_i = INCREMENT(buffer->out_i);
      5a4:	21 a1       	ldd	r18, Z+33	; 0x21
      5a6:	30 e0       	ldi	r19, 0x00	; 0
      5a8:	2f 5f       	subi	r18, 0xFF	; 255
@@ -1058,37 +952,24 @@ uint8_t buffer_get_item(buffer_struct_t *buffer, uint8_t *item) {
      5bc:	2f 5f       	subi	r18, 0xFF	; 255
      5be:	3f 4f       	sbci	r19, 0xFF	; 255
      5c0:	21 a3       	std	Z+33, r18	; 0x21
-		buffer->no_in_buffer--;
      5c2:	82 a1       	ldd	r24, Z+34	; 0x22
      5c4:	81 50       	subi	r24, 0x01	; 1
      5c6:	82 a3       	std	Z+34, r24	; 0x22
-		return BUFFER_OK;
      5c8:	80 e0       	ldi	r24, 0x00	; 0
      5ca:	08 95       	ret
-	}
-	return BUFFER_EMPTY;
      5cc:	81 e0       	ldi	r24, 0x01	; 1
-}
      5ce:	08 95       	ret
 
 000005d0 <buffer_put_item>:
-    BUFFER_FULL: The buffer is full, item is not stored.
- @param *buffer pointer to the buffer structure.
- @param item to be stored in the buffer.
- ***********************************************/
-uint8_t buffer_put_item(buffer_struct_t *buffer, uint8_t item) {
-	if (buffer->no_in_buffer<BUFFER_SIZE) {
      5d0:	fc 01       	movw	r30, r24
      5d2:	42 a1       	ldd	r20, Z+34	; 0x22
      5d4:	40 32       	cpi	r20, 0x20	; 32
      5d6:	b8 f4       	brcc	.+46     	; 0x606 <buffer_put_item+0x36>
-		buffer->storage[buffer->in_i] = item;
      5d8:	20 a1       	ldd	r18, Z+32	; 0x20
      5da:	30 e0       	ldi	r19, 0x00	; 0
      5dc:	e2 0f       	add	r30, r18
      5de:	f3 1f       	adc	r31, r19
      5e0:	60 83       	st	Z, r22
-		buffer->in_i = INCREMENT(buffer->in_i);
      5e2:	2f 5f       	subi	r18, 0xFF	; 255
      5e4:	3f 4f       	sbci	r19, 0xFF	; 255
      5e6:	2f 71       	andi	r18, 0x1F	; 31
@@ -1103,102 +984,51 @@ uint8_t buffer_put_item(buffer_struct_t *buffer, uint8_t item) {
      5f8:	3f 4f       	sbci	r19, 0xFF	; 255
      5fa:	fc 01       	movw	r30, r24
      5fc:	20 a3       	std	Z+32, r18	; 0x20
-		buffer->no_in_buffer++;
      5fe:	4f 5f       	subi	r20, 0xFF	; 255
      600:	42 a3       	std	Z+34, r20	; 0x22
-		return BUFFER_OK;
      602:	80 e0       	ldi	r24, 0x00	; 0
      604:	08 95       	ret
-	}
-	return BUFFER_FULL;
      606:	82 e0       	ldi	r24, 0x02	; 2
-}
      608:	08 95       	ret
 
 0000060a <vListInitialise>:
-/*-----------------------------------------------------------
- * PUBLIC LIST API documented in list.h
- *----------------------------------------------------------*/
-
-void vListInitialise( List_t * const pxList )
-{
      60a:	fc 01       	movw	r30, r24
-	/* The list structure contains a list item which is used to mark the
-	end of the list.  To initialise the list the list end is inserted
-	as the only list entry. */
-	pxList->pxIndex = ( ListItem_t * ) &( pxList->xListEnd );			/*lint !e826 !e740 The mini list structure is used as the list end to save RAM.  This is checked and valid. */
      60c:	03 96       	adiw	r24, 0x03	; 3
      60e:	92 83       	std	Z+2, r25	; 0x02
      610:	81 83       	std	Z+1, r24	; 0x01
-
-	/* The list end value is the highest possible value in the list to
-	ensure it remains at the end of the list. */
-	pxList->xListEnd.xItemValue = portMAX_DELAY;
      612:	2f ef       	ldi	r18, 0xFF	; 255
      614:	3f ef       	ldi	r19, 0xFF	; 255
      616:	34 83       	std	Z+4, r19	; 0x04
      618:	23 83       	std	Z+3, r18	; 0x03
-
-	/* The list end next and previous pointers point to itself so we know
-	when the list is empty. */
-	pxList->xListEnd.pxNext = ( ListItem_t * ) &( pxList->xListEnd );	/*lint !e826 !e740 The mini list structure is used as the list end to save RAM.  This is checked and valid. */
      61a:	96 83       	std	Z+6, r25	; 0x06
      61c:	85 83       	std	Z+5, r24	; 0x05
-	pxList->xListEnd.pxPrevious = ( ListItem_t * ) &( pxList->xListEnd );/*lint !e826 !e740 The mini list structure is used as the list end to save RAM.  This is checked and valid. */
      61e:	90 87       	std	Z+8, r25	; 0x08
      620:	87 83       	std	Z+7, r24	; 0x07
-
-	pxList->uxNumberOfItems = ( UBaseType_t ) 0U;
      622:	10 82       	st	Z, r1
      624:	08 95       	ret
 
 00000626 <vListInitialiseItem>:
-/*-----------------------------------------------------------*/
-
-void vListInitialiseItem( ListItem_t * const pxItem )
-{
-	/* Make sure the list item is not recorded as being on a list. */
-	pxItem->pvContainer = NULL;
      626:	fc 01       	movw	r30, r24
      628:	11 86       	std	Z+9, r1	; 0x09
      62a:	10 86       	std	Z+8, r1	; 0x08
      62c:	08 95       	ret
 
 0000062e <vListInsertEnd>:
-	listSET_SECOND_LIST_ITEM_INTEGRITY_CHECK_VALUE( pxItem );
-}
-/*-----------------------------------------------------------*/
-
-void vListInsertEnd( List_t * const pxList, ListItem_t * const pxNewListItem )
-{
      62e:	cf 93       	push	r28
      630:	df 93       	push	r29
      632:	9c 01       	movw	r18, r24
      634:	fb 01       	movw	r30, r22
-ListItem_t * const pxIndex = pxList->pxIndex;
      636:	dc 01       	movw	r26, r24
      638:	11 96       	adiw	r26, 0x01	; 1
      63a:	cd 91       	ld	r28, X+
      63c:	dc 91       	ld	r29, X
      63e:	12 97       	sbiw	r26, 0x02	; 2
-	listTEST_LIST_ITEM_INTEGRITY( pxNewListItem );
-
-	/* Insert a new list item into pxList, but rather than sort the list,
-	makes the new list item the last item to be removed by a call to
-	listGET_OWNER_OF_NEXT_ENTRY(). */
-	pxNewListItem->pxNext = pxIndex;
      640:	d3 83       	std	Z+3, r29	; 0x03
      642:	c2 83       	std	Z+2, r28	; 0x02
-	pxNewListItem->pxPrevious = pxIndex->pxPrevious;
      644:	8c 81       	ldd	r24, Y+4	; 0x04
      646:	9d 81       	ldd	r25, Y+5	; 0x05
      648:	95 83       	std	Z+5, r25	; 0x05
      64a:	84 83       	std	Z+4, r24	; 0x04
-
-	/* Only used during decision coverage testing. */
-	mtCOVERAGE_TEST_DELAY();
-
-	pxIndex->pxPrevious->pxNext = pxNewListItem;
      64c:	8c 81       	ldd	r24, Y+4	; 0x04
      64e:	9d 81       	ldd	r25, Y+5	; 0x05
      650:	dc 01       	movw	r26, r24
@@ -1206,59 +1036,32 @@ ListItem_t * const pxIndex = pxList->pxIndex;
      654:	7c 93       	st	X, r23
      656:	6e 93       	st	-X, r22
      658:	12 97       	sbiw	r26, 0x02	; 2
-	pxIndex->pxPrevious = pxNewListItem;
      65a:	7d 83       	std	Y+5, r23	; 0x05
      65c:	6c 83       	std	Y+4, r22	; 0x04
-
-	/* Remember which list the item is in. */
-	pxNewListItem->pvContainer = ( void * ) pxList;
      65e:	31 87       	std	Z+9, r19	; 0x09
      660:	20 87       	std	Z+8, r18	; 0x08
-
-	( pxList->uxNumberOfItems )++;
      662:	f9 01       	movw	r30, r18
      664:	80 81       	ld	r24, Z
      666:	8f 5f       	subi	r24, 0xFF	; 255
      668:	80 83       	st	Z, r24
-}
      66a:	df 91       	pop	r29
      66c:	cf 91       	pop	r28
      66e:	08 95       	ret
 
 00000670 <vListInsert>:
-/*-----------------------------------------------------------*/
-
-void vListInsert( List_t * const pxList, ListItem_t * const pxNewListItem )
-{
      670:	cf 93       	push	r28
      672:	df 93       	push	r29
      674:	eb 01       	movw	r28, r22
-ListItem_t *pxIterator;
-const TickType_t xValueOfInsertion = pxNewListItem->xItemValue;
      676:	48 81       	ld	r20, Y
      678:	59 81       	ldd	r21, Y+1	; 0x01
-	new list item should be placed after it.  This ensures that TCB's which are
-	stored in ready lists (all of which have the same xItemValue value) get a
-	share of the CPU.  However, if the xItemValue is the same as the back marker
-	the iteration loop below will not end.  Therefore the value is checked
-	first, and the algorithm slightly modified if necessary. */
-	if( xValueOfInsertion == portMAX_DELAY )
      67a:	4f 3f       	cpi	r20, 0xFF	; 255
      67c:	2f ef       	ldi	r18, 0xFF	; 255
      67e:	52 07       	cpc	r21, r18
      680:	21 f4       	brne	.+8      	; 0x68a <vListInsert+0x1a>
-	{
-		pxIterator = pxList->xListEnd.pxPrevious;
      682:	fc 01       	movw	r30, r24
      684:	a7 81       	ldd	r26, Z+7	; 0x07
      686:	b0 85       	ldd	r27, Z+8	; 0x08
      688:	0d c0       	rjmp	.+26     	; 0x6a4 <vListInsert+0x34>
-			4) Using a queue or semaphore before it has been initialised or
-			   before the scheduler has been started (are interrupts firing
-			   before vTaskStartScheduler() has been called?).
-		**********************************************************************/
-
-		for( pxIterator = ( ListItem_t * ) &( pxList->xListEnd ); pxIterator->pxNext->xItemValue <= xValueOfInsertion; pxIterator = pxIterator->pxNext ) /*lint !e826 !e740 The mini list structure is used as the list end to save RAM.  This is checked and valid. */
      68a:	dc 01       	movw	r26, r24
      68c:	13 96       	adiw	r26, 0x03	; 3
      68e:	01 c0       	rjmp	.+2      	; 0x692 <vListInsert+0x22>
@@ -1272,80 +1075,48 @@ const TickType_t xValueOfInsertion = pxNewListItem->xItemValue;
      69e:	42 17       	cp	r20, r18
      6a0:	53 07       	cpc	r21, r19
      6a2:	b0 f7       	brcc	.-20     	; 0x690 <vListInsert+0x20>
-			/* There is nothing to do here, just iterating to the wanted
-			insertion position. */
-		}
-	}
-
-	pxNewListItem->pxNext = pxIterator->pxNext;
      6a4:	12 96       	adiw	r26, 0x02	; 2
      6a6:	ed 91       	ld	r30, X+
      6a8:	fc 91       	ld	r31, X
      6aa:	13 97       	sbiw	r26, 0x03	; 3
      6ac:	fb 83       	std	Y+3, r31	; 0x03
      6ae:	ea 83       	std	Y+2, r30	; 0x02
-	pxNewListItem->pxNext->pxPrevious = pxNewListItem;
      6b0:	d5 83       	std	Z+5, r29	; 0x05
      6b2:	c4 83       	std	Z+4, r28	; 0x04
-	pxNewListItem->pxPrevious = pxIterator;
      6b4:	bd 83       	std	Y+5, r27	; 0x05
      6b6:	ac 83       	std	Y+4, r26	; 0x04
-	pxIterator->pxNext = pxNewListItem;
      6b8:	13 96       	adiw	r26, 0x03	; 3
      6ba:	dc 93       	st	X, r29
      6bc:	ce 93       	st	-X, r28
      6be:	12 97       	sbiw	r26, 0x02	; 2
-
-	/* Remember which list the item is in.  This allows fast removal of the
-	item later. */
-	pxNewListItem->pvContainer = ( void * ) pxList;
      6c0:	99 87       	std	Y+9, r25	; 0x09
      6c2:	88 87       	std	Y+8, r24	; 0x08
-
-	( pxList->uxNumberOfItems )++;
      6c4:	fc 01       	movw	r30, r24
      6c6:	20 81       	ld	r18, Z
      6c8:	2f 5f       	subi	r18, 0xFF	; 255
      6ca:	20 83       	st	Z, r18
-}
      6cc:	df 91       	pop	r29
      6ce:	cf 91       	pop	r28
      6d0:	08 95       	ret
 
 000006d2 <uxListRemove>:
-/*-----------------------------------------------------------*/
-
-UBaseType_t uxListRemove( ListItem_t * const pxItemToRemove )
-{
      6d2:	cf 93       	push	r28
      6d4:	df 93       	push	r29
      6d6:	fc 01       	movw	r30, r24
-/* The list item knows which list it is in.  Obtain the list from the list
-item. */
-List_t * const pxList = ( List_t * ) pxItemToRemove->pvContainer;
      6d8:	a0 85       	ldd	r26, Z+8	; 0x08
      6da:	b1 85       	ldd	r27, Z+9	; 0x09
-
-	pxItemToRemove->pxNext->pxPrevious = pxItemToRemove->pxPrevious;
      6dc:	c2 81       	ldd	r28, Z+2	; 0x02
      6de:	d3 81       	ldd	r29, Z+3	; 0x03
      6e0:	84 81       	ldd	r24, Z+4	; 0x04
      6e2:	95 81       	ldd	r25, Z+5	; 0x05
      6e4:	9d 83       	std	Y+5, r25	; 0x05
      6e6:	8c 83       	std	Y+4, r24	; 0x04
-	pxItemToRemove->pxPrevious->pxNext = pxItemToRemove->pxNext;
      6e8:	c4 81       	ldd	r28, Z+4	; 0x04
      6ea:	d5 81       	ldd	r29, Z+5	; 0x05
      6ec:	82 81       	ldd	r24, Z+2	; 0x02
      6ee:	93 81       	ldd	r25, Z+3	; 0x03
      6f0:	9b 83       	std	Y+3, r25	; 0x03
      6f2:	8a 83       	std	Y+2, r24	; 0x02
-
-	/* Only used during decision coverage testing. */
-	mtCOVERAGE_TEST_DELAY();
-
-	/* Make sure the index is left pointing to a valid item. */
-	if( pxList->pxIndex == pxItemToRemove )
      6f4:	11 96       	adiw	r26, 0x01	; 1
      6f6:	8d 91       	ld	r24, X+
      6f8:	9c 91       	ld	r25, X
@@ -1353,40 +1124,22 @@ List_t * const pxList = ( List_t * ) pxItemToRemove->pvContainer;
      6fc:	e8 17       	cp	r30, r24
      6fe:	f9 07       	cpc	r31, r25
      700:	31 f4       	brne	.+12     	; 0x70e <uxListRemove+0x3c>
-	{
-		pxList->pxIndex = pxItemToRemove->pxPrevious;
      702:	84 81       	ldd	r24, Z+4	; 0x04
      704:	95 81       	ldd	r25, Z+5	; 0x05
      706:	12 96       	adiw	r26, 0x02	; 2
      708:	9c 93       	st	X, r25
      70a:	8e 93       	st	-X, r24
      70c:	11 97       	sbiw	r26, 0x01	; 1
-	else
-	{
-		mtCOVERAGE_TEST_MARKER();
-	}
-
-	pxItemToRemove->pvContainer = NULL;
      70e:	11 86       	std	Z+9, r1	; 0x09
      710:	10 86       	std	Z+8, r1	; 0x08
-	( pxList->uxNumberOfItems )--;
      712:	8c 91       	ld	r24, X
      714:	81 50       	subi	r24, 0x01	; 1
      716:	8c 93       	st	X, r24
-
-	return pxList->uxNumberOfItems;
-}
      718:	df 91       	pop	r29
      71a:	cf 91       	pop	r28
      71c:	08 95       	ret
 
 0000071e <pxPortInitialiseStack>:
-	return pdTRUE;
-}
-/*-----------------------------------------------------------*/
-
-void vPortEndScheduler( void )
-{
      71e:	31 e1       	ldi	r19, 0x11	; 17
      720:	fc 01       	movw	r30, r24
      722:	30 83       	st	Z, r19
@@ -1552,12 +1305,6 @@ void vPortEndScheduler( void )
      868:	08 95       	ret
 
 0000086a <vPortYield>:
- * can use a naked attribute.
- */
-void vPortYield( void ) __attribute__ ( ( naked ) );
-void vPortYield( void )
-{
-	portSAVE_CONTEXT();
      86a:	0f 92       	push	r0
      86c:	0f b6       	in	r0, 0x3f	; 63
      86e:	f8 94       	cli
@@ -1600,9 +1347,7 @@ void vPortYield( void )
      8bc:	0d 92       	st	X+, r0
      8be:	0e b6       	in	r0, 0x3e	; 62
      8c0:	0d 92       	st	X+, r0
-	vTaskSwitchContext();
      8c2:	0e 94 25 0d 	call	0x1a4a	; 0x1a4a <vTaskSwitchContext>
-	portRESTORE_CONTEXT();
      8c6:	a0 91 71 06 	lds	r26, 0x0671	; 0x800671 <pxCurrentTCB>
      8ca:	b0 91 72 06 	lds	r27, 0x0672	; 0x800672 <pxCurrentTCB+0x1>
      8ce:	cd 91       	ld	r28, X+
@@ -1643,17 +1388,9 @@ void vPortYield( void )
      914:	0f 90       	pop	r0
      916:	0f be       	out	0x3f, r0	; 63
      918:	0f 90       	pop	r0
-
-	asm volatile ( "ret" );
      91a:	08 95       	ret
 
 0000091c <vPortYieldFromTick>:
- * call comes from the tick ISR.
- */
-void vPortYieldFromTick( void ) __attribute__ ( ( naked ) );
-void vPortYieldFromTick( void )
-{
-	portSAVE_CONTEXT();
      91c:	0f 92       	push	r0
      91e:	0f b6       	in	r0, 0x3f	; 63
      920:	f8 94       	cli
@@ -1696,14 +1433,9 @@ void vPortYieldFromTick( void )
      96e:	0d 92       	st	X+, r0
      970:	0e b6       	in	r0, 0x3e	; 62
      972:	0d 92       	st	X+, r0
-	if( xTaskIncrementTick() != pdFALSE )
      974:	0e 94 89 0b 	call	0x1712	; 0x1712 <xTaskIncrementTick>
      978:	81 11       	cpse	r24, r1
-	{
-		vTaskSwitchContext();
      97a:	0e 94 25 0d 	call	0x1a4a	; 0x1a4a <vTaskSwitchContext>
-	}
-	portRESTORE_CONTEXT();
      97e:	a0 91 71 06 	lds	r26, 0x0671	; 0x800671 <pxCurrentTCB>
      982:	b0 91 72 06 	lds	r27, 0x0672	; 0x800672 <pxCurrentTCB+0x1>
      986:	cd 91       	ld	r28, X+
@@ -1744,55 +1476,25 @@ void vPortYieldFromTick( void )
      9cc:	0f 90       	pop	r0
      9ce:	0f be       	out	0x3f, r0	; 63
      9d0:	0f 90       	pop	r0
-
-	asm volatile ( "ret" );
      9d2:	08 95       	ret
 
 000009d4 <__vector_13>:
-	 */
-// 	void SIG_OUTPUT_COMPARE1A( void ) __attribute__ ( ( signal, naked ) );
-// 	void SIG_OUTPUT_COMPARE1A( void )
-ISR(TIMER1_COMPA_vect, ISR_NAKED)  // IHA
-	{
-		vPortYieldFromTick();
      9d4:	0e 94 8e 04 	call	0x91c	; 0x91c <vPortYieldFromTick>
-		asm volatile ( "reti" );
      9d8:	18 95       	reti
 
 000009da <pvPortMalloc>:
-static size_t xNextFreeByte = ( size_t ) 0;
-
-/*-----------------------------------------------------------*/
-
-void *pvPortMalloc( size_t xWantedSize )
-{
      9da:	cf 93       	push	r28
      9dc:	df 93       	push	r29
      9de:	ec 01       	movw	r28, r24
-			xWantedSize += ( portBYTE_ALIGNMENT - ( xWantedSize & portBYTE_ALIGNMENT_MASK ) );
-		}
-	}
-	#endif
-
-	vTaskSuspendAll();
      9e0:	0e 94 83 0b 	call	0x1706	; 0x1706 <vTaskSuspendAll>
-	{
-		if( pucAlignedHeap == NULL )
      9e4:	80 91 26 02 	lds	r24, 0x0226	; 0x800226 <pucAlignedHeap.2084>
      9e8:	90 91 27 02 	lds	r25, 0x0227	; 0x800227 <pucAlignedHeap.2084+0x1>
      9ec:	89 2b       	or	r24, r25
      9ee:	31 f4       	brne	.+12     	; 0x9fc <pvPortMalloc+0x22>
-		{
-			/* Ensure the heap starts on a correctly aligned boundary. */
-			pucAlignedHeap = ( uint8_t * ) ( ( ( portPOINTER_SIZE_TYPE ) &ucHeap[ portBYTE_ALIGNMENT ] ) & ( ~( ( portPOINTER_SIZE_TYPE ) portBYTE_ALIGNMENT_MASK ) ) );
      9f0:	8b e2       	ldi	r24, 0x2B	; 43
      9f2:	92 e0       	ldi	r25, 0x02	; 2
      9f4:	90 93 27 02 	sts	0x0227, r25	; 0x800227 <pucAlignedHeap.2084+0x1>
      9f8:	80 93 26 02 	sts	0x0226, r24	; 0x800226 <pucAlignedHeap.2084>
-		}
-
-		/* Check there is enough room left for the allocation. */
-		if( ( ( xNextFreeByte + xWantedSize ) < configADJUSTED_HEAP_SIZE ) &&
      9fc:	20 91 28 02 	lds	r18, 0x0228	; 0x800228 <xNextFreeByte>
      a00:	30 91 29 02 	lds	r19, 0x0229	; 0x800229 <xNextFreeByte+0x1>
      a04:	c9 01       	movw	r24, r18
@@ -1805,62 +1507,28 @@ void *pvPortMalloc( size_t xWantedSize )
      a12:	28 17       	cp	r18, r24
      a14:	39 07       	cpc	r19, r25
      a16:	70 f4       	brcc	.+28     	; 0xa34 <pvPortMalloc+0x5a>
-			( ( xNextFreeByte + xWantedSize ) > xNextFreeByte )	)/* Check for overflow. */
-		{
-			/* Return the next free byte then increment the index past this
-			block. */
-			pvReturn = pucAlignedHeap + xNextFreeByte;
      a18:	c0 91 26 02 	lds	r28, 0x0226	; 0x800226 <pucAlignedHeap.2084>
      a1c:	d0 91 27 02 	lds	r29, 0x0227	; 0x800227 <pucAlignedHeap.2084+0x1>
      a20:	c2 0f       	add	r28, r18
      a22:	d3 1f       	adc	r29, r19
-			xNextFreeByte += xWantedSize;
      a24:	90 93 29 02 	sts	0x0229, r25	; 0x800229 <xNextFreeByte+0x1>
      a28:	80 93 28 02 	sts	0x0228, r24	; 0x800228 <xNextFreeByte>
      a2c:	05 c0       	rjmp	.+10     	; 0xa38 <pvPortMalloc+0x5e>
-
-/*-----------------------------------------------------------*/
-
-void *pvPortMalloc( size_t xWantedSize )
-{
-void *pvReturn = NULL;
      a2e:	c0 e0       	ldi	r28, 0x00	; 0
      a30:	d0 e0       	ldi	r29, 0x00	; 0
      a32:	02 c0       	rjmp	.+4      	; 0xa38 <pvPortMalloc+0x5e>
      a34:	c0 e0       	ldi	r28, 0x00	; 0
      a36:	d0 e0       	ldi	r29, 0x00	; 0
-			xNextFreeByte += xWantedSize;
-		}
-
-		traceMALLOC( pvReturn, xWantedSize );
-	}
-	( void ) xTaskResumeAll();
      a38:	0e 94 44 0c 	call	0x1888	; 0x1888 <xTaskResumeAll>
-		}
-	}
-	#endif
-
-	return pvReturn;
-}
      a3c:	ce 01       	movw	r24, r28
      a3e:	df 91       	pop	r29
      a40:	cf 91       	pop	r28
      a42:	08 95       	ret
 
 00000a44 <vPortFree>:
-/*-----------------------------------------------------------*/
-
-void vPortFree( void *pv )
-{
      a44:	08 95       	ret
 
 00000a46 <serial_new_instance>:
-			_serial_tx_int_on(handle->ser_UDR);
-			return BUFFER_OK;
-		}
-	}
-	return BUFFER_FULL;
-}
      a46:	4f 92       	push	r4
      a48:	5f 92       	push	r5
      a4a:	6f 92       	push	r6
@@ -1983,18 +1651,12 @@ void vPortFree( void *pv )
      b38:	08 95       	ret
 
 00000b3a <serial_send_bytes>:
-
-/*-----------------------------------------------------------*/
-uint8_t serial_send_bytes(serial_p handle, uint8_t *buf, uint8_t len )
-{
      b3a:	ef 92       	push	r14
      b3c:	ff 92       	push	r15
      b3e:	0f 93       	push	r16
      b40:	1f 93       	push	r17
      b42:	cf 93       	push	r28
      b44:	df 93       	push	r29
-	// Check if buffer is full
-	if ( ((handle->_tx_buf != 0) && (len > (BUFFER_SIZE - handle->_tx_buf->no_in_buffer))) || ((handle->_tx_buf == 0) && (len > 1)) ) {
      b46:	fc 01       	movw	r30, r24
      b48:	a2 81       	ldd	r26, Z+2	; 0x02
      b4a:	b3 81       	ldd	r27, Z+3	; 0x03
@@ -2012,20 +1674,9 @@ uint8_t serial_send_bytes(serial_p handle, uint8_t *buf, uint8_t len )
      b62:	3f 07       	cpc	r19, r31
      b64:	1c f1       	brlt	.+70     	; 0xbac <serial_send_bytes+0x72>
      b66:	7c 01       	movw	r14, r24
-		return BUFFER_FULL;
-	}
-	
-	// Put in the tx buffer
-	for (uint8_t i = 0; i < len; i++) {
      b68:	41 11       	cpse	r20, r1
      b6a:	04 c0       	rjmp	.+8      	; 0xb74 <serial_send_bytes+0x3a>
      b6c:	16 c0       	rjmp	.+44     	; 0xb9a <serial_send_bytes+0x60>
-
-/*-----------------------------------------------------------*/
-uint8_t serial_send_bytes(serial_p handle, uint8_t *buf, uint8_t len )
-{
-	// Check if buffer is full
-	if ( ((handle->_tx_buf != 0) && (len > (BUFFER_SIZE - handle->_tx_buf->no_in_buffer))) || ((handle->_tx_buf == 0) && (len > 1)) ) {
      b6e:	42 30       	cpi	r20, 0x02	; 2
      b70:	f8 f4       	brcc	.+62     	; 0xbb0 <serial_send_bytes+0x76>
      b72:	f9 cf       	rjmp	.-14     	; 0xb66 <serial_send_bytes+0x2c>
@@ -2037,12 +1688,6 @@ uint8_t serial_send_bytes(serial_p handle, uint8_t *buf, uint8_t len )
      b7e:	1f 4f       	sbci	r17, 0xFF	; 255
      b80:	06 0f       	add	r16, r22
      b82:	17 1f       	adc	r17, r23
-		return BUFFER_FULL;
-	}
-	
-	// Put in the tx buffer
-	for (uint8_t i = 0; i < len; i++) {
-		buffer_put_item(handle->_tx_buf, buf[i]);
      b84:	69 91       	ld	r22, Y+
      b86:	d7 01       	movw	r26, r14
      b88:	12 96       	adiw	r26, 0x02	; 2
@@ -2050,54 +1695,21 @@ uint8_t serial_send_bytes(serial_p handle, uint8_t *buf, uint8_t len )
      b8c:	9c 91       	ld	r25, X
      b8e:	13 97       	sbiw	r26, 0x03	; 3
      b90:	0e 94 e8 02 	call	0x5d0	; 0x5d0 <buffer_put_item>
-	if ( ((handle->_tx_buf != 0) && (len > (BUFFER_SIZE - handle->_tx_buf->no_in_buffer))) || ((handle->_tx_buf == 0) && (len > 1)) ) {
-		return BUFFER_FULL;
-	}
-	
-	// Put in the tx buffer
-	for (uint8_t i = 0; i < len; i++) {
      b94:	c0 17       	cp	r28, r16
      b96:	d1 07       	cpc	r29, r17
      b98:	a9 f7       	brne	.-22     	; 0xb84 <serial_send_bytes+0x4a>
-		buffer_put_item(handle->_tx_buf, buf[i]);
-	}
-	_serial_tx_int_on(handle->ser_UDR);
      b9a:	d7 01       	movw	r26, r14
      b9c:	ed 91       	ld	r30, X+
      b9e:	fc 91       	ld	r31, X
-SREG = _sreg;
-
-
-/*-----------------------------------------------------------*/
-static void _serial_tx_int_on(volatile uint8_t *UDR_reg) {
-	*(UDR_reg  - UCSRB_off) |= serTX_INT_ENABLE;
      ba0:	35 97       	sbiw	r30, 0x05	; 5
      ba2:	80 81       	ld	r24, Z
      ba4:	80 62       	ori	r24, 0x20	; 32
      ba6:	80 83       	st	Z, r24
-	// Put in the tx buffer
-	for (uint8_t i = 0; i < len; i++) {
-		buffer_put_item(handle->_tx_buf, buf[i]);
-	}
-	_serial_tx_int_on(handle->ser_UDR);
-	return BUFFER_OK;
      ba8:	80 e0       	ldi	r24, 0x00	; 0
      baa:	03 c0       	rjmp	.+6      	; 0xbb2 <serial_send_bytes+0x78>
-/*-----------------------------------------------------------*/
-uint8_t serial_send_bytes(serial_p handle, uint8_t *buf, uint8_t len )
-{
-	// Check if buffer is full
-	if ( ((handle->_tx_buf != 0) && (len > (BUFFER_SIZE - handle->_tx_buf->no_in_buffer))) || ((handle->_tx_buf == 0) && (len > 1)) ) {
-		return BUFFER_FULL;
      bac:	82 e0       	ldi	r24, 0x02	; 2
      bae:	01 c0       	rjmp	.+2      	; 0xbb2 <serial_send_bytes+0x78>
      bb0:	82 e0       	ldi	r24, 0x02	; 2
-	for (uint8_t i = 0; i < len; i++) {
-		buffer_put_item(handle->_tx_buf, buf[i]);
-	}
-	_serial_tx_int_on(handle->ser_UDR);
-	return BUFFER_OK;
-}
      bb2:	df 91       	pop	r29
      bb4:	cf 91       	pop	r28
      bb6:	1f 91       	pop	r17
@@ -2107,10 +1719,6 @@ uint8_t serial_send_bytes(serial_p handle, uint8_t *buf, uint8_t len )
      bbe:	08 95       	ret
 
 00000bc0 <__vector_20>:
-
-/*-----------------------------------------------------------*/
-ISR(USART0_RX_vect)
-{
      bc0:	1f 92       	push	r1
      bc2:	0f 92       	push	r0
      bc4:	0f b6       	in	r0, 0x3f	; 63
@@ -2129,21 +1737,15 @@ ISR(USART0_RX_vect)
      bde:	cf 93       	push	r28
      be0:	ef 93       	push	r30
      be2:	ff 93       	push	r31
-	uint8_t item;
-	if (_ser_handle[ser_USART0]) {
      be4:	e0 91 12 06 	lds	r30, 0x0612	; 0x800612 <_ser_handle>
      be8:	f0 91 13 06 	lds	r31, 0x0613	; 0x800613 <_ser_handle+0x1>
      bec:	30 97       	sbiw	r30, 0x00	; 0
      bee:	a1 f0       	breq	.+40     	; 0xc18 <__vector_20+0x58>
-		item = UDR0;
      bf0:	c0 91 c6 00 	lds	r28, 0x00C6	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
-		buffer_put_item(_ser_handle[ser_USART0]->_rx_buf, item);
      bf4:	6c 2f       	mov	r22, r28
      bf6:	84 81       	ldd	r24, Z+4	; 0x04
      bf8:	95 81       	ldd	r25, Z+5	; 0x05
      bfa:	0e 94 e8 02 	call	0x5d0	; 0x5d0 <buffer_put_item>
-		
-		if (_ser_handle[ser_USART0]->_call_back) {
      bfe:	80 91 12 06 	lds	r24, 0x0612	; 0x800612 <_ser_handle>
      c02:	90 91 13 06 	lds	r25, 0x0613	; 0x800613 <_ser_handle+0x1>
      c06:	dc 01       	movw	r26, r24
@@ -2153,12 +1755,8 @@ ISR(USART0_RX_vect)
      c0e:	17 97       	sbiw	r26, 0x07	; 7
      c10:	30 97       	sbiw	r30, 0x00	; 0
      c12:	11 f0       	breq	.+4      	; 0xc18 <__vector_20+0x58>
-			_ser_handle[ser_USART0]->_call_back(_ser_handle[ser_USART0], item);
      c14:	6c 2f       	mov	r22, r28
      c16:	09 95       	icall
-		}
-	}
-}
      c18:	ff 91       	pop	r31
      c1a:	ef 91       	pop	r30
      c1c:	cf 91       	pop	r28
@@ -2179,10 +1777,6 @@ ISR(USART0_RX_vect)
      c3a:	18 95       	reti
 
 00000c3c <__vector_21>:
-
-/*-----------------------------------------------------------*/
-ISR(USART0_UDRE_vect)
-{
      c3c:	1f 92       	push	r1
      c3e:	0f 92       	push	r0
      c40:	0f b6       	in	r0, 0x3f	; 63
@@ -2205,13 +1799,10 @@ ISR(USART0_UDRE_vect)
      c62:	1f 92       	push	r1
      c64:	cd b7       	in	r28, 0x3d	; 61
      c66:	de b7       	in	r29, 0x3e	; 62
-	uint8_t item;
-	if (_ser_handle[ser_USART0]) {
      c68:	e0 91 12 06 	lds	r30, 0x0612	; 0x800612 <_ser_handle>
      c6c:	f0 91 13 06 	lds	r31, 0x0613	; 0x800613 <_ser_handle+0x1>
      c70:	30 97       	sbiw	r30, 0x00	; 0
      c72:	99 f0       	breq	.+38     	; 0xc9a <__vector_21+0x5e>
-		if ((buffer_get_item(_ser_handle[ser_USART0]->_tx_buf, &item) == BUFFER_OK)) {
      c74:	be 01       	movw	r22, r28
      c76:	6f 5f       	subi	r22, 0xFF	; 255
      c78:	7f 4f       	sbci	r23, 0xFF	; 255
@@ -2220,33 +1811,20 @@ ISR(USART0_UDRE_vect)
      c7e:	0e 94 c7 02 	call	0x58e	; 0x58e <buffer_get_item>
      c82:	81 11       	cpse	r24, r1
      c84:	04 c0       	rjmp	.+8      	; 0xc8e <__vector_21+0x52>
-			UDR0 = item;
      c86:	89 81       	ldd	r24, Y+1	; 0x01
      c88:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
      c8c:	0b c0       	rjmp	.+22     	; 0xca4 <__vector_21+0x68>
-		}
-		else
-		{
-			SERIAL_TX_INT_OFF(UCSR0B);
      c8e:	e1 ec       	ldi	r30, 0xC1	; 193
      c90:	f0 e0       	ldi	r31, 0x00	; 0
      c92:	80 81       	ld	r24, Z
      c94:	8f 7d       	andi	r24, 0xDF	; 223
      c96:	80 83       	st	Z, r24
      c98:	05 c0       	rjmp	.+10     	; 0xca4 <__vector_21+0x68>
-		}
-	}
-	
-	else
-	{
-		SERIAL_TX_INT_OFF(UCSR0B);
      c9a:	e1 ec       	ldi	r30, 0xC1	; 193
      c9c:	f0 e0       	ldi	r31, 0x00	; 0
      c9e:	80 81       	ld	r24, Z
      ca0:	8f 7d       	andi	r24, 0xDF	; 223
      ca2:	80 83       	st	Z, r24
-	}
-}
      ca4:	0f 90       	pop	r0
      ca6:	df 91       	pop	r29
      ca8:	cf 91       	pop	r28
@@ -2269,10 +1847,6 @@ ISR(USART0_UDRE_vect)
      cca:	18 95       	reti
 
 00000ccc <__vector_28>:
-
-/*-----------------------------------------------------------*/
-ISR(USART1_RX_vect)
-{
      ccc:	1f 92       	push	r1
      cce:	0f 92       	push	r0
      cd0:	0f b6       	in	r0, 0x3f	; 63
@@ -2291,20 +1865,15 @@ ISR(USART1_RX_vect)
      cea:	cf 93       	push	r28
      cec:	ef 93       	push	r30
      cee:	ff 93       	push	r31
-	uint8_t item;
-	if (_ser_handle[ser_USART1]) {
      cf0:	e0 91 14 06 	lds	r30, 0x0614	; 0x800614 <_ser_handle+0x2>
      cf4:	f0 91 15 06 	lds	r31, 0x0615	; 0x800615 <_ser_handle+0x3>
      cf8:	30 97       	sbiw	r30, 0x00	; 0
      cfa:	a1 f0       	breq	.+40     	; 0xd24 <__vector_28+0x58>
-		item = UDR1;
      cfc:	c0 91 ce 00 	lds	r28, 0x00CE	; 0x8000ce <__TEXT_REGION_LENGTH__+0x7e00ce>
-		buffer_put_item(_ser_handle[ser_USART1]->_rx_buf, item);
      d00:	6c 2f       	mov	r22, r28
      d02:	84 81       	ldd	r24, Z+4	; 0x04
      d04:	95 81       	ldd	r25, Z+5	; 0x05
      d06:	0e 94 e8 02 	call	0x5d0	; 0x5d0 <buffer_put_item>
-		if (_ser_handle[ser_USART1]->_call_back) {
      d0a:	80 91 14 06 	lds	r24, 0x0614	; 0x800614 <_ser_handle+0x2>
      d0e:	90 91 15 06 	lds	r25, 0x0615	; 0x800615 <_ser_handle+0x3>
      d12:	dc 01       	movw	r26, r24
@@ -2314,12 +1883,8 @@ ISR(USART1_RX_vect)
      d1a:	17 97       	sbiw	r26, 0x07	; 7
      d1c:	30 97       	sbiw	r30, 0x00	; 0
      d1e:	11 f0       	breq	.+4      	; 0xd24 <__vector_28+0x58>
-			_ser_handle[ser_USART1]->_call_back(_ser_handle[ser_USART1], item);
      d20:	6c 2f       	mov	r22, r28
      d22:	09 95       	icall
-		}
-	}
-}
      d24:	ff 91       	pop	r31
      d26:	ef 91       	pop	r30
      d28:	cf 91       	pop	r28
@@ -2340,10 +1905,6 @@ ISR(USART1_RX_vect)
      d46:	18 95       	reti
 
 00000d48 <__vector_29>:
-
-/*-----------------------------------------------------------*/
-ISR(USART1_UDRE_vect)
-{
      d48:	1f 92       	push	r1
      d4a:	0f 92       	push	r0
      d4c:	0f b6       	in	r0, 0x3f	; 63
@@ -2366,13 +1927,10 @@ ISR(USART1_UDRE_vect)
      d6e:	1f 92       	push	r1
      d70:	cd b7       	in	r28, 0x3d	; 61
      d72:	de b7       	in	r29, 0x3e	; 62
-	uint8_t item;
-	if (_ser_handle[ser_USART1]) {
      d74:	e0 91 14 06 	lds	r30, 0x0614	; 0x800614 <_ser_handle+0x2>
      d78:	f0 91 15 06 	lds	r31, 0x0615	; 0x800615 <_ser_handle+0x3>
      d7c:	30 97       	sbiw	r30, 0x00	; 0
      d7e:	99 f0       	breq	.+38     	; 0xda6 <__vector_29+0x5e>
-		if ((buffer_get_item(_ser_handle[ser_USART1]->_tx_buf, &item) == BUFFER_OK)) {
      d80:	be 01       	movw	r22, r28
      d82:	6f 5f       	subi	r22, 0xFF	; 255
      d84:	7f 4f       	sbci	r23, 0xFF	; 255
@@ -2381,33 +1939,20 @@ ISR(USART1_UDRE_vect)
      d8a:	0e 94 c7 02 	call	0x58e	; 0x58e <buffer_get_item>
      d8e:	81 11       	cpse	r24, r1
      d90:	04 c0       	rjmp	.+8      	; 0xd9a <__vector_29+0x52>
-			UDR1 = item;
      d92:	89 81       	ldd	r24, Y+1	; 0x01
      d94:	80 93 ce 00 	sts	0x00CE, r24	; 0x8000ce <__TEXT_REGION_LENGTH__+0x7e00ce>
      d98:	0b c0       	rjmp	.+22     	; 0xdb0 <__vector_29+0x68>
-		}
-		else
-		{
-			SERIAL_TX_INT_OFF(UCSR1B);
      d9a:	e9 ec       	ldi	r30, 0xC9	; 201
      d9c:	f0 e0       	ldi	r31, 0x00	; 0
      d9e:	80 81       	ld	r24, Z
      da0:	8f 7d       	andi	r24, 0xDF	; 223
      da2:	80 83       	st	Z, r24
      da4:	05 c0       	rjmp	.+10     	; 0xdb0 <__vector_29+0x68>
-		}
-	}
-	
-	else
-	{
-		SERIAL_TX_INT_OFF(UCSR1B);
      da6:	e9 ec       	ldi	r30, 0xC9	; 201
      da8:	f0 e0       	ldi	r31, 0x00	; 0
      daa:	80 81       	ld	r24, Z
      dac:	8f 7d       	andi	r24, 0xDF	; 223
      dae:	80 83       	st	Z, r24
-	}
-}
      db0:	0f 90       	pop	r0
      db2:	df 91       	pop	r29
      db4:	cf 91       	pop	r28
@@ -2430,12 +1975,6 @@ ISR(USART1_UDRE_vect)
      dd6:	18 95       	reti
 
 00000dd8 <prvCopyDataToQueue>:
-		}
-	}
-	portCLEAR_INTERRUPT_MASK_FROM_ISR( uxSavedInterruptStatus );
-
-	return xReturn;
-}
      dd8:	0f 93       	push	r16
      dda:	1f 93       	push	r17
      ddc:	cf 93       	push	r28
@@ -2971,10 +2510,6 @@ ISR(USART1_UDRE_vect)
     1228:	08 95       	ret
 
 0000122a <xQueueGenericReceive>:
-/*-----------------------------------------------------------*/
-
-BaseType_t xQueueGenericReceive( QueueHandle_t xQueue, void * const pvBuffer, TickType_t xTicksToWait, const BaseType_t xJustPeeking )
-{
     122a:	8f 92       	push	r8
     122c:	9f 92       	push	r9
     122e:	af 92       	push	r10
@@ -2997,188 +2532,81 @@ BaseType_t xQueueGenericReceive( QueueHandle_t xQueue, void * const pvBuffer, Ti
     1250:	5d 83       	std	Y+5, r21	; 0x05
     1252:	4c 83       	std	Y+4, r20	; 0x04
     1254:	82 2e       	mov	r8, r18
-BaseType_t xEntryTimeSet = pdFALSE;
     1256:	e1 2c       	mov	r14, r1
-				else if( xEntryTimeSet == pdFALSE )
-				{
-					/* The queue was empty and a block time was specified so
-					configure the timeout structure. */
-					vTaskSetTimeOutState( &xTimeOut );
-					xEntryTimeSet = pdTRUE;
     1258:	99 24       	eor	r9, r9
     125a:	93 94       	inc	r9
-						mtCOVERAGE_TEST_MARKER();
-					}
-				}
-				#endif
-
-				vTaskPlaceOnEventList( &( pxQueue->xTasksWaitingToReceive ), xTicksToWait );
     125c:	6c 01       	movw	r12, r24
     125e:	81 e1       	ldi	r24, 0x11	; 17
     1260:	c8 0e       	add	r12, r24
     1262:	d1 1c       	adc	r13, r1
-	statements within the function itself.  This is done in the interest
-	of execution time efficiency. */
-
-	for( ;; )
-	{
-		taskENTER_CRITICAL();
     1264:	0f b6       	in	r0, 0x3f	; 63
     1266:	f8 94       	cli
     1268:	0f 92       	push	r0
-		{
-			const UBaseType_t uxMessagesWaiting = pxQueue->uxMessagesWaiting;
     126a:	f8 01       	movw	r30, r16
     126c:	f2 8c       	ldd	r15, Z+26	; 0x1a
-
-			/* Is there data in the queue now?  To be running the calling task
-			must be the highest priority task wanting to access the queue. */
-			if( uxMessagesWaiting > ( UBaseType_t ) 0 )
     126e:	ff 20       	and	r15, r15
     1270:	91 f1       	breq	.+100    	; 0x12d6 <xQueueGenericReceive+0xac>
-			{
-				/* Remember the read position in case the queue is only being
-				peeked. */
-				pcOriginalReadPosition = pxQueue->u.pcReadFrom;
     1272:	c6 80       	ldd	r12, Z+6	; 0x06
     1274:	d7 80       	ldd	r13, Z+7	; 0x07
-
-				prvCopyDataFromQueue( pxQueue, pvBuffer );
     1276:	b5 01       	movw	r22, r10
     1278:	c8 01       	movw	r24, r16
     127a:	0e 94 4b 07 	call	0xe96	; 0xe96 <prvCopyDataFromQueue>
-
-				if( xJustPeeking == pdFALSE )
     127e:	81 10       	cpse	r8, r1
     1280:	19 c0       	rjmp	.+50     	; 0x12b4 <xQueueGenericReceive+0x8a>
-				{
-					traceQUEUE_RECEIVE( pxQueue );
-
-					/* Actually removing data, not just peeking. */
-					pxQueue->uxMessagesWaiting = uxMessagesWaiting - 1;
     1282:	fa 94       	dec	r15
     1284:	f8 01       	movw	r30, r16
     1286:	f2 8e       	std	Z+26, r15	; 0x1a
-
-					#if ( configUSE_MUTEXES == 1 )
-					{
-						if( pxQueue->uxQueueType == queueQUEUE_IS_MUTEX )
     1288:	80 81       	ld	r24, Z
     128a:	91 81       	ldd	r25, Z+1	; 0x01
     128c:	89 2b       	or	r24, r25
     128e:	29 f4       	brne	.+10     	; 0x129a <xQueueGenericReceive+0x70>
-						{
-							/* Record the information required to implement
-							priority inheritance should it become necessary. */
-							pxQueue->pxMutexHolder = ( int8_t * ) pvTaskIncrementMutexHeldCount(); /*lint !e961 Cast is not redundant as TaskHandle_t is a typedef. */
     1290:	0e 94 d6 0e 	call	0x1dac	; 0x1dac <pvTaskIncrementMutexHeldCount>
     1294:	f8 01       	movw	r30, r16
     1296:	93 83       	std	Z+3, r25	; 0x03
     1298:	82 83       	std	Z+2, r24	; 0x02
-							mtCOVERAGE_TEST_MARKER();
-						}
-					}
-					#endif /* configUSE_MUTEXES */
-
-					if( listLIST_IS_EMPTY( &( pxQueue->xTasksWaitingToSend ) ) == pdFALSE )
     129a:	f8 01       	movw	r30, r16
     129c:	80 85       	ldd	r24, Z+8	; 0x08
     129e:	88 23       	and	r24, r24
     12a0:	b1 f0       	breq	.+44     	; 0x12ce <xQueueGenericReceive+0xa4>
-					{
-						if( xTaskRemoveFromEventList( &( pxQueue->xTasksWaitingToSend ) ) != pdFALSE )
     12a2:	c8 01       	movw	r24, r16
     12a4:	08 96       	adiw	r24, 0x08	; 8
     12a6:	0e 94 ab 0d 	call	0x1b56	; 0x1b56 <xTaskRemoveFromEventList>
     12aa:	88 23       	and	r24, r24
     12ac:	81 f0       	breq	.+32     	; 0x12ce <xQueueGenericReceive+0xa4>
-						{
-							queueYIELD_IF_USING_PREEMPTION();
     12ae:	0e 94 35 04 	call	0x86a	; 0x86a <vPortYield>
     12b2:	0d c0       	rjmp	.+26     	; 0x12ce <xQueueGenericReceive+0xa4>
-				{
-					traceQUEUE_PEEK( pxQueue );
-
-					/* The data is not being removed, so reset the read
-					pointer. */
-					pxQueue->u.pcReadFrom = pcOriginalReadPosition;
     12b4:	f8 01       	movw	r30, r16
     12b6:	d7 82       	std	Z+7, r13	; 0x07
     12b8:	c6 82       	std	Z+6, r12	; 0x06
-
-					/* The data is being left in the queue, so see if there are
-					any other tasks waiting for the data. */
-					if( listLIST_IS_EMPTY( &( pxQueue->xTasksWaitingToReceive ) ) == pdFALSE )
     12ba:	81 89       	ldd	r24, Z+17	; 0x11
     12bc:	88 23       	and	r24, r24
     12be:	39 f0       	breq	.+14     	; 0x12ce <xQueueGenericReceive+0xa4>
-					{
-						if( xTaskRemoveFromEventList( &( pxQueue->xTasksWaitingToReceive ) ) != pdFALSE )
     12c0:	c8 01       	movw	r24, r16
     12c2:	41 96       	adiw	r24, 0x11	; 17
     12c4:	0e 94 ab 0d 	call	0x1b56	; 0x1b56 <xTaskRemoveFromEventList>
     12c8:	81 11       	cpse	r24, r1
-						{
-							/* The task waiting has a higher priority than this task. */
-							queueYIELD_IF_USING_PREEMPTION();
     12ca:	0e 94 35 04 	call	0x86a	; 0x86a <vPortYield>
-					{
-						mtCOVERAGE_TEST_MARKER();
-					}
-				}
-
-				taskEXIT_CRITICAL();
     12ce:	0f 90       	pop	r0
     12d0:	0f be       	out	0x3f, r0	; 63
-				return pdPASS;
     12d2:	81 e0       	ldi	r24, 0x01	; 1
     12d4:	64 c0       	rjmp	.+200    	; 0x139e <xQueueGenericReceive+0x174>
-			}
-			else
-			{
-				if( xTicksToWait == ( TickType_t ) 0 )
     12d6:	8c 81       	ldd	r24, Y+4	; 0x04
     12d8:	9d 81       	ldd	r25, Y+5	; 0x05
     12da:	89 2b       	or	r24, r25
     12dc:	21 f4       	brne	.+8      	; 0x12e6 <xQueueGenericReceive+0xbc>
-				{
-					/* The queue was empty and no block time is specified (or
-					the block time has expired) so leave now. */
-					taskEXIT_CRITICAL();
     12de:	0f 90       	pop	r0
     12e0:	0f be       	out	0x3f, r0	; 63
-					traceQUEUE_RECEIVE_FAILED( pxQueue );
-					return errQUEUE_EMPTY;
     12e2:	80 e0       	ldi	r24, 0x00	; 0
     12e4:	5c c0       	rjmp	.+184    	; 0x139e <xQueueGenericReceive+0x174>
-				}
-				else if( xEntryTimeSet == pdFALSE )
     12e6:	e1 10       	cpse	r14, r1
     12e8:	05 c0       	rjmp	.+10     	; 0x12f4 <xQueueGenericReceive+0xca>
-				{
-					/* The queue was empty and a block time was specified so
-					configure the timeout structure. */
-					vTaskSetTimeOutState( &xTimeOut );
     12ea:	ce 01       	movw	r24, r28
     12ec:	01 96       	adiw	r24, 0x01	; 1
     12ee:	0e 94 f3 0d 	call	0x1be6	; 0x1be6 <vTaskSetTimeOutState>
-					xEntryTimeSet = pdTRUE;
     12f2:	e9 2c       	mov	r14, r9
-					/* Entry time was already set. */
-					mtCOVERAGE_TEST_MARKER();
-				}
-			}
-		}
-		taskEXIT_CRITICAL();
     12f4:	0f 90       	pop	r0
     12f6:	0f be       	out	0x3f, r0	; 63
-
-		/* Interrupts and other tasks can send to and receive from the queue
-		now the critical section has been exited. */
-
-		vTaskSuspendAll();
     12f8:	0e 94 83 0b 	call	0x1706	; 0x1706 <vTaskSuspendAll>
-		prvLockQueue( pxQueue );
     12fc:	0f b6       	in	r0, 0x3f	; 63
     12fe:	f8 94       	cli
     1300:	0f 92       	push	r0
@@ -3194,9 +2622,6 @@ BaseType_t xEntryTimeSet = pdFALSE;
     1314:	16 8e       	std	Z+30, r1	; 0x1e
     1316:	0f 90       	pop	r0
     1318:	0f be       	out	0x3f, r0	; 63
-
-		/* Update the timeout state to see if it has expired yet. */
-		if( xTaskCheckForTimeOut( &xTimeOut, &xTicksToWait ) == pdFALSE )
     131a:	be 01       	movw	r22, r28
     131c:	6c 5f       	subi	r22, 0xFC	; 252
     131e:	7f 4f       	sbci	r23, 0xFF	; 255
@@ -3205,135 +2630,54 @@ BaseType_t xEntryTimeSet = pdFALSE;
     1324:	0e 94 fe 0d 	call	0x1bfc	; 0x1bfc <xTaskCheckForTimeOut>
     1328:	81 11       	cpse	r24, r1
     132a:	2b c0       	rjmp	.+86     	; 0x1382 <xQueueGenericReceive+0x158>
-
-static BaseType_t prvIsQueueEmpty( const Queue_t *pxQueue )
-{
-BaseType_t xReturn;
-
-	taskENTER_CRITICAL();
     132c:	0f b6       	in	r0, 0x3f	; 63
     132e:	f8 94       	cli
     1330:	0f 92       	push	r0
-	{
-		if( pxQueue->uxMessagesWaiting == ( UBaseType_t )  0 )
     1332:	f8 01       	movw	r30, r16
     1334:	82 8d       	ldd	r24, Z+26	; 0x1a
-		else
-		{
-			xReturn = pdFALSE;
-		}
-	}
-	taskEXIT_CRITICAL();
     1336:	0f 90       	pop	r0
     1338:	0f be       	out	0x3f, r0	; 63
-		prvLockQueue( pxQueue );
-
-		/* Update the timeout state to see if it has expired yet. */
-		if( xTaskCheckForTimeOut( &xTimeOut, &xTicksToWait ) == pdFALSE )
-		{
-			if( prvIsQueueEmpty( pxQueue ) != pdFALSE )
     133a:	81 11       	cpse	r24, r1
     133c:	1c c0       	rjmp	.+56     	; 0x1376 <xQueueGenericReceive+0x14c>
-			{
-				traceBLOCKING_ON_QUEUE_RECEIVE( pxQueue );
-
-				#if ( configUSE_MUTEXES == 1 )
-				{
-					if( pxQueue->uxQueueType == queueQUEUE_IS_MUTEX )
     133e:	80 81       	ld	r24, Z
     1340:	91 81       	ldd	r25, Z+1	; 0x01
     1342:	89 2b       	or	r24, r25
     1344:	49 f4       	brne	.+18     	; 0x1358 <xQueueGenericReceive+0x12e>
-					{
-						taskENTER_CRITICAL();
     1346:	0f b6       	in	r0, 0x3f	; 63
     1348:	f8 94       	cli
     134a:	0f 92       	push	r0
-						{
-							vTaskPriorityInherit( ( void * ) pxQueue->pxMutexHolder );
     134c:	82 81       	ldd	r24, Z+2	; 0x02
     134e:	93 81       	ldd	r25, Z+3	; 0x03
     1350:	0e 94 34 0e 	call	0x1c68	; 0x1c68 <vTaskPriorityInherit>
-						}
-						taskEXIT_CRITICAL();
     1354:	0f 90       	pop	r0
     1356:	0f be       	out	0x3f, r0	; 63
-						mtCOVERAGE_TEST_MARKER();
-					}
-				}
-				#endif
-
-				vTaskPlaceOnEventList( &( pxQueue->xTasksWaitingToReceive ), xTicksToWait );
     1358:	6c 81       	ldd	r22, Y+4	; 0x04
     135a:	7d 81       	ldd	r23, Y+5	; 0x05
     135c:	c6 01       	movw	r24, r12
     135e:	0e 94 99 0d 	call	0x1b32	; 0x1b32 <vTaskPlaceOnEventList>
-				prvUnlockQueue( pxQueue );
     1362:	c8 01       	movw	r24, r16
     1364:	0e 94 65 07 	call	0xeca	; 0xeca <prvUnlockQueue>
-				if( xTaskResumeAll() == pdFALSE )
     1368:	0e 94 44 0c 	call	0x1888	; 0x1888 <xTaskResumeAll>
     136c:	81 11       	cpse	r24, r1
     136e:	7a cf       	rjmp	.-268    	; 0x1264 <xQueueGenericReceive+0x3a>
-				{
-					portYIELD_WITHIN_API();
     1370:	0e 94 35 04 	call	0x86a	; 0x86a <vPortYield>
     1374:	77 cf       	rjmp	.-274    	; 0x1264 <xQueueGenericReceive+0x3a>
-				}
-			}
-			else
-			{
-				/* Try again. */
-				prvUnlockQueue( pxQueue );
     1376:	c8 01       	movw	r24, r16
     1378:	0e 94 65 07 	call	0xeca	; 0xeca <prvUnlockQueue>
-				( void ) xTaskResumeAll();
     137c:	0e 94 44 0c 	call	0x1888	; 0x1888 <xTaskResumeAll>
     1380:	71 cf       	rjmp	.-286    	; 0x1264 <xQueueGenericReceive+0x3a>
-			}
-		}
-		else
-		{
-			prvUnlockQueue( pxQueue );
     1382:	c8 01       	movw	r24, r16
     1384:	0e 94 65 07 	call	0xeca	; 0xeca <prvUnlockQueue>
-			( void ) xTaskResumeAll();
     1388:	0e 94 44 0c 	call	0x1888	; 0x1888 <xTaskResumeAll>
-
-static BaseType_t prvIsQueueEmpty( const Queue_t *pxQueue )
-{
-BaseType_t xReturn;
-
-	taskENTER_CRITICAL();
     138c:	0f b6       	in	r0, 0x3f	; 63
     138e:	f8 94       	cli
     1390:	0f 92       	push	r0
-	{
-		if( pxQueue->uxMessagesWaiting == ( UBaseType_t )  0 )
     1392:	f8 01       	movw	r30, r16
     1394:	82 8d       	ldd	r24, Z+26	; 0x1a
-		else
-		{
-			xReturn = pdFALSE;
-		}
-	}
-	taskEXIT_CRITICAL();
     1396:	0f 90       	pop	r0
     1398:	0f be       	out	0x3f, r0	; 63
-		else
-		{
-			prvUnlockQueue( pxQueue );
-			( void ) xTaskResumeAll();
-
-			if( prvIsQueueEmpty( pxQueue ) != pdFALSE )
     139a:	81 11       	cpse	r24, r1
     139c:	63 cf       	rjmp	.-314    	; 0x1264 <xQueueGenericReceive+0x3a>
-			{
-				mtCOVERAGE_TEST_MARKER();
-			}
-		}
-	}
-}
     139e:	0f 90       	pop	r0
     13a0:	0f 90       	pop	r0
     13a2:	0f 90       	pop	r0
@@ -3354,12 +2698,6 @@ BaseType_t xReturn;
     13c0:	08 95       	ret
 
 000013c2 <prvResetNextTaskUnblockTime>:
-	/* Reset the event list item to its normal value - so it can be used with
-	queues and semaphores. */
-	listSET_LIST_ITEM_VALUE( &( pxCurrentTCB->xEventListItem ), ( ( TickType_t ) configMAX_PRIORITIES - ( TickType_t ) pxCurrentTCB->uxPriority ) ); /*lint !e961 MISRA exception as the casts are only redundant for some ports. */
-
-	return uxReturn;
-}
     13c2:	e0 91 39 06 	lds	r30, 0x0639	; 0x800639 <pxDelayedTaskList>
     13c6:	f0 91 3a 06 	lds	r31, 0x063A	; 0x80063a <pxDelayedTaskList+0x1>
     13ca:	80 81       	ld	r24, Z
@@ -4461,29 +3799,17 @@ BaseType_t xReturn;
     1daa:	08 95       	ret
 
 00001dac <pvTaskIncrementMutexHeldCount>:
-
-	void *pvTaskIncrementMutexHeldCount( void )
-	{
-		/* If xSemaphoreCreateMutex() is called before any tasks have been created
-		then pxCurrentTCB will be NULL. */
-		if( pxCurrentTCB != NULL )
     1dac:	80 91 71 06 	lds	r24, 0x0671	; 0x800671 <pxCurrentTCB>
     1db0:	90 91 72 06 	lds	r25, 0x0672	; 0x800672 <pxCurrentTCB+0x1>
     1db4:	89 2b       	or	r24, r25
     1db6:	39 f0       	breq	.+14     	; 0x1dc6 <pvTaskIncrementMutexHeldCount+0x1a>
-		{
-			( pxCurrentTCB->uxMutexesHeld )++;
     1db8:	e0 91 71 06 	lds	r30, 0x0671	; 0x800671 <pxCurrentTCB>
     1dbc:	f0 91 72 06 	lds	r31, 0x0672	; 0x800672 <pxCurrentTCB+0x1>
     1dc0:	84 a1       	ldd	r24, Z+36	; 0x24
     1dc2:	8f 5f       	subi	r24, 0xFF	; 255
     1dc4:	84 a3       	std	Z+36, r24	; 0x24
-		}
-
-		return pxCurrentTCB;
     1dc6:	80 91 71 06 	lds	r24, 0x0671	; 0x800671 <pxCurrentTCB>
     1dca:	90 91 72 06 	lds	r25, 0x0672	; 0x800672 <pxCurrentTCB+0x1>
-	}
     1dce:	08 95       	ret
 
 00001dd0 <__udivmodsi4>:
